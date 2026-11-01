@@ -1,0 +1,84 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boutique</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@400;500&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1c1b19;--bone:#faf8f4;--sand:#e9e0d1;--stone:#a89a82;--line:#ddd5c6}
+*{box-sizing:border-box;margin:0}body{font:15px/1.55 Jost,Tajawal,sans-serif;background:var(--bone);color:var(--ink)}
+[dir=rtl] body{font-family:Tajawal,Jost,sans-serif}button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+h1,h2,.logo{font-family:'Cormorant Garamond',Tajawal,serif;font-weight:600;letter-spacing:.01em}
+header{position:sticky;top:0;z-index:5;background:var(--bone);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:12px 20px}
+.logo{font-size:26px;flex:1}.ib{background:none;border:1px solid var(--line);padding:6px 12px;border-radius:99px}
+.cnt{background:var(--ink);color:var(--bone);border-radius:99px;padding:0 7px;margin-inline-start:6px;font-size:12px}
+.hero{background:var(--sand);padding:clamp(40px,9vw,110px) 20px;text-align:center}
+.hero h1{font-size:clamp(40px,9vw,92px);line-height:1;max-width:11em;margin:auto;animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+.hero p{margin:18px auto 0;max-width:30em;color:#5b5446}@keyframes rise{from{opacity:0;transform:translateY(24px)}}
+.bar{display:flex;gap:10px;flex-wrap:wrap;padding:20px;max-width:1200px;margin:auto;align-items:center}
+.chips{display:flex;gap:8px;overflow-x:auto;flex:1 1 100%;padding-bottom:4px}
+.chip{white-space:nowrap;border:1px solid var(--line);background:none;padding:7px 16px;border-radius:99px}.chip.on{background:var(--ink);color:var(--bone);border-color:var(--ink)}
+.bar input,.bar select,.f input,.f textarea{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:8px;width:100%}.bar input{flex:2 1 200px;width:auto}.bar select{flex:1 1 140px;width:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:22px;padding:0 20px 60px;max-width:1200px;margin:auto}
+.card{cursor:pointer;background:none;border:0;text-align:start}.im{aspect-ratio:3/4;background:var(--sand);overflow:hidden;position:relative;display:grid;place-items:center;font:600 54px 'Cormorant Garamond';color:var(--stone)}
+.im img{width:100%;height:100%;object-fit:cover;transition:transform .5s}.card:hover .im img{transform:scale(1.04)}
+.tag{position:absolute;top:10px;inset-inline-start:10px;background:var(--ink);color:var(--bone);font:500 12px Jost;padding:3px 10px}.tag.so{background:var(--bone);color:var(--ink)}
+.card h3{font-weight:500;font-size:15px;margin-top:10px}.pr{color:#5b5446}.pr s{color:var(--stone);margin-inline-start:6px}
+.ov{position:fixed;inset:0;background:#0007;z-index:10;display:none}.ov.on{display:block}
+.pan{position:absolute;background:var(--bone);overflow:auto;inset-block:0;inset-inline-end:0;width:min(440px,100%);padding:24px;animation:slide .3s}
+[dir=rtl] .pan{animation-name:slider}@keyframes slide{from{transform:translateX(40px);opacity:0}}@keyframes slider{from{transform:translateX(-40px);opacity:0}}
+.pan.wide{width:min(900px,100%)}.pd{display:grid;gap:24px;grid-template-columns:1fr}@media(min-width:760px){.pd.two{grid-template-columns:1fr 1fr}}
+.th{display:flex;gap:8px;margin-top:8px}.th img{width:56px;height:70px;object-fit:cover;cursor:pointer;opacity:.6}.th img.on{opacity:1;outline:1px solid var(--ink)}
+.opt{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}.opt button{border:1px solid var(--line);background:none;padding:7px 14px;min-width:44px}.opt button.on{background:var(--ink);color:var(--bone)}
+.btn{background:var(--ink);color:var(--bone);border:0;padding:14px;width:100%;margin-top:10px;letter-spacing:.02em}.btn:disabled{opacity:.4}.btn.o{background:none;color:var(--ink);border:1px solid var(--ink)}
+.row{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.row img{width:56px;height:70px;object-fit:cover;background:var(--sand)}.row>div{flex:1}
+.f{display:grid;gap:10px;margin-top:16px}.sp{font-size:14px;color:#5b5446}.sp li{margin-inline-start:18px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bone);padding:12px 22px;z-index:20;display:none}
+footer{text-align:center;padding:30px;color:var(--stone);border-top:1px solid var(--line)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<header><div class="logo" id="logo"></div><button class="ib" id="lang"></button><button class="ib" id="cartb"><span data-t="cart"></span><span class="cnt" id="cn">0</span></button></header>
+<section class="hero"><h1 data-t="hero"></h1><p data-t="sub"></p></section>
+<div class="bar"><input id="q" type="search" data-p="search"><select id="so"><option value="new" data-t="new"></option><option value="asc" data-t="asc"></option><option value="desc" data-t="desc"></option></select><div class="chips" id="chips"></div></div>
+<main class="grid" id="grid"></main><footer id="ft"></footer>
+<div class="ov" id="ov"><div class="pan" id="pan"></div></div><div class="toast" id="toast"></div>
+<script>
+const T={fr:{cart:'Panier',hero:'Le style, simplement.',sub:'Vêtements et accessoires choisis avec soin, livrés partout en Algérie.',search:'Rechercher un article',all:'Tout',new:'Nouveautés',asc:'Prix croissant',desc:'Prix décroissant',soldout:'Épuisé',size:'Taille',color:'Couleur',add:'Ajouter au panier',left:'en stock',none:'Rupture de stock',total:'Total',empty:'Votre panier est vide.',name:'Nom complet',phone:'Téléphone',wilaya:'Wilaya',addr:'Adresse de livraison',order:'Confirmer la commande',wa:'Commander sur WhatsApp',ok:'Commande n°',okt:'reçue. Nous vous appelons pour confirmer.',added:'Ajouté au panier',close:'Fermer',specs:'Caractéristiques',noitems:'Aucun article trouvé.'},
+ar:{cart:'السلة',hero:'الأناقة ببساطة.',sub:'ملابس وإكسسوارات مختارة بعناية، توصيل إلى كل الولايات.',search:'ابحث عن منتج',all:'الكل',new:'الأحدث',asc:'السعر: الأقل',desc:'السعر: الأعلى',soldout:'نفد المخزون',size:'المقاس',color:'اللون',add:'أضف إلى السلة',left:'متوفر',none:'غير متوفر',total:'المجموع',empty:'السلة فارغة.',name:'الاسم الكامل',phone:'رقم الهاتف',wilaya:'الولاية',addr:'عنوان التسليم',order:'تأكيد الطلب',wa:'اطلب عبر واتساب',ok:'الطلب رقم',okt:'تم استلامه. سنتصل بك للتأكيد.',added:'تمت الإضافة',close:'إغلاق',specs:'المواصفات',noitems:'لا توجد منتجات.'}};
+let L=localStorage.lang||'fr',S={},P=[],cat='',cart=JSON.parse(localStorage.cart||'[]');
+const $=s=>document.querySelector(s),t=k=>T[L][k],esc=s=>String(s??'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const dzd=n=>n.toLocaleString(L=='ar'?'ar-DZ':'fr-DZ')+' DZD',nm=p=>p['name_'+L]||p.name_fr,ds=p=>p['desc_'+L]||p.desc_fr;
+const open=h=>{$('#pan').innerHTML=h;$('#ov').classList.add('on')},shut=()=>$('#ov').classList.remove('on');
+$('#ov').onclick=e=>{if(e.target.id=='ov')shut()};document.onkeydown=e=>{if(e.key=='Escape')shut()};
+const toast=m=>{const e=$('#toast');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',1800)};
+function ui(){document.documentElement.lang=L;document.documentElement.dir=L=='ar'?'rtl':'ltr';$('#lang').textContent=L=='ar'?'Français':'العربية';
+ document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));document.querySelectorAll('[data-p]').forEach(e=>e.placeholder=t(e.dataset.p));
+ $('#logo').textContent=S.shop||'';document.title=S.shop||'';$('#ft').textContent='© '+new Date().getFullYear()+' '+(S.shop||'');$('#cn').textContent=cart.reduce((a,i)=>a+i.qty,0);
+ $('#chips').innerHTML=[{slug:'',fr:t('all'),ar:t('all')},...(S.categories||[])].map(c=>`<button class="chip ${cat==c.slug?'on':''}" data-c="${esc(c.slug)}">${esc(c[L])}</button>`).join('');
+ $('#chips').onclick=e=>{if(e.target.dataset.c!=null){cat=e.target.dataset.c;ui();list()}};list()}
+function list(){const q=$('#q').value.toLowerCase(),s=$('#so').value;let a=P.filter(p=>(!cat||p.category==cat)&&(nm(p)+p.name_fr+p.name_ar).toLowerCase().includes(q));
+ if(s=='asc')a.sort((x,y)=>x.final-y.final);if(s=='desc')a.sort((x,y)=>y.final-x.final);
+ $('#grid').innerHTML=a.map(p=>`<button class="card" data-id="${p.id}"><div class="im">${p.images[0]?`<img loading="lazy" src="${esc(p.images[0])}" alt="">`:esc(nm(p)[0])}${!p.stock?`<span class="tag so">${t('soldout')}</span>`:p.discount?`<span class="tag">-${p.discount}%</span>`:''}</div><h3>${esc(nm(p))}</h3><div class="pr">${dzd(p.final)}${p.discount?`<s>${dzd(p.price)}</s>`:''}</div></button>`).join('')||`<p>${t('noitems')}</p>`}
+$('#grid').onclick=e=>{const c=e.target.closest('.card');if(c)show(+c.dataset.id)};$('#q').oninput=list;$('#so').onchange=list;
+$('#lang').onclick=()=>{L=L=='fr'?'ar':'fr';localStorage.lang=L;ui()};
+function show(id,sz,co,im=0){const p=P.find(x=>x.id==id),V=p.variants,sizes=[...new Set(V.map(v=>v.size).filter(Boolean))],cols=[...new Set(V.map(v=>v.color).filter(Boolean))];
+ sz??=sizes.find(s=>V.some(v=>v.size==s&&v.stock>0))||sizes[0]||'';co??=(V.find(v=>v.size==sz&&v.stock>0)||{}).color||cols[0]||'';
+ const v=V.find(v=>(v.size||'')==sz&&(v.color||'')==co),st=v?v.stock:0;
+ open(`<button class="ib" onclick="shut()">${t('close')}</button><div class="pd two" style="margin-top:16px"><div><div class="im">${p.images[im]?`<img src="${esc(p.images[im])}" alt="">`:esc(nm(p)[0])}</div><div class="th">${p.images.map((u,i)=>`<img class="${i==im?'on':''}" src="${esc(u)}" alt="" onclick="show(${id},'${esc(sz)}','${esc(co)}',${i})">`).join('')}</div></div>
+ <div><h2 style="font-size:34px">${esc(nm(p))}</h2><p class="pr" style="font-size:20px;margin:6px 0 14px">${dzd(p.final)}${p.discount?`<s>${dzd(p.price)}</s>`:''}</p><p>${esc(ds(p))}</p>
+ ${sizes.length?`<h4 style="margin-top:16px">${t('size')}</h4><div class="opt">${sizes.map(s=>`<button class="${s==sz?'on':''}" onclick="show(${id},'${esc(s)}',null,${im})">${esc(s)}</button>`).join('')}</div>`:''}
+ ${cols.length?`<h4>${t('color')}</h4><div class="opt">${cols.map(c=>`<button class="${c==co?'on':''}" onclick="show(${id},'${esc(sz)}','${esc(c)}',${im})">${esc(c)}</button>`).join('')}</div>`:''}
+ <p class="sp">${st>0?(st<=5?st+' '+t('left'):''):t('none')}</p><button class="btn" ${st>0?'':'disabled'} onclick="addc(${id},'${esc(sz)}','${esc(co)}')">${t('add')}</button>
+ ${p.specs.length?`<h4 style="margin-top:20px">${t('specs')}</h4><ul class="sp">${p.specs.map(s=>`<li><b>${esc(s.k)}</b>: ${esc(s.v)}</li>`).join('')}</ul>`:''}</div></div>`);$('#pan').classList.add('wide')}
+function addc(id,size,color){const p=P.find(x=>x.id==id),v=p.variants.find(v=>(v.size||'')==size&&(v.color||'')==color),i=cart.find(c=>c.id==id&&c.size==size&&c.color==color);
+ if(i)i.qty=Math.min(v.stock,i.qty+1);else cart.push({id,size,color,qty:1});sv();shut();toast(t('added'))}
+const sv=()=>{localStorage.cart=JSON.stringify(cart);$('#cn').textContent=cart.reduce((a,i)=>a+i.qty,0)};
+const sum=()=>cart.reduce((a,i)=>a+i.qty*P.find(p=>p.id==i.id).final,0);
+$('#cartb').onclick=()=>{cart=cart.filter(i=>P.find(p=>p.id==i.id));sv();$('#pan').classList.remove('wide');
+ open(`<button class="ib" onclick="shut()">${t('close')}</button><h2 style="font-size:30px;margin:14px 0">${t('cart')}</h2>`+(cart.length?cart.map((i,n)=>{const p=P.find(p=>p.id==i.id);return`<div class="row"><img src="${esc(p.images[0]||'')}" alt=""><div><b>${esc(nm(p))}</b><br><span class="sp">${esc([i.size,i.color].filter(Boolean).join(' / '))}</span><br>${dzd(p.final*i.qty)}</div><button class="ib" onclick="qty(${n},-1)">−</button>${i.qty}<button class="ib" onclick="qty(${n},1)">+</button></div>`}).join('')+
+ `<p style="margin:16px 0;font-size:18px"><b>${t('total')}: ${dzd(sum())}</b></p><div class="f"><input id="fn" placeholder="${t('name')}" autocomplete="name"><input id="fp" type="tel" placeholder="${t('phone')}" autocomplete="tel"><input id="fw" placeholder="${t('wilaya')}"><textarea id="fa" rows="2" placeholder="${t('addr')}"></textarea></div><button class="btn" onclick="send(0)">${t('order')}</button><button class="btn o" onclick="send(1)">${t('wa')}</button>`:`<p>${t('empty')}</p>`)};
+function qty(n,d){const i=cart[n],p=P.find(p=>p.id==i.id),v=p.variants.find(v=>(v.size||'')==i.size&&(v.color||'')==i.color);i.qty=Math.min(v?v.stock:1,i.qty+d);if(i.qty<1)cart.splice(n,1);sv();$('#cartb').onclick()}
+async function send(wa){const b={name:$('#fn').value.trim(),phone:$('#fp').value.trim(),wilaya:$('#fw').value.trim(),address:$('#fa').value.trim(),items:cart};
+ const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}),d=await r.json();if(!r.ok)return toast(d.error);
+ if(wa){const m=`${S.shop} #${d.id}\n`+cart.map(i=>{const p=P.find(p=>p.id==i.id);return `• ${p.name_fr} ${[i.size,i.color].filter(Boolean).join('/')} ×${i.qty}`}).join('\n')+`\n${t('total')}: ${dzd(d.total)}\n${b.name} - ${b.phone} - ${b.wilaya}`;window.open(`https://wa.me/${S.whatsapp}?text=${encodeURIComponent(m)}`,'_blank')}
+ cart=[];sv();$('#pan').innerHTML=`<h2 style="font-size:30px;margin:40px 0 10px">${t('ok')} ${d.id}</h2><p>${t('okt')}</p><button class="btn" onclick="shut()">${t('close')}</button>`}
+(async()=>{[S,P]=await Promise.all([fetch('/api/shop').then(r=>r.json()),fetch('/api/products').then(r=>r.json())]);ui()})();
+</script></body></html>

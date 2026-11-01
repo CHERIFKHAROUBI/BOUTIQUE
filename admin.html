@@ -1,0 +1,64 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Administration</title>
+<style>
+:root{--ink:#1c1b19;--bone:#faf8f4;--sand:#e9e0d1;--line:#ddd5c6;--red:#a3341f}
+*{box-sizing:border-box;margin:0}body{font:15px/1.5 system-ui,sans-serif;background:var(--bone);color:var(--ink)}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+input,select,textarea{border:1px solid var(--line);background:#fff;padding:9px 12px;border-radius:8px;width:100%}label{display:block;font-weight:500;font-size:14px;margin:12px 0 4px}
+.btn{background:var(--ink);color:var(--bone);border:0;padding:10px 18px;border-radius:8px}.btn.o{background:none;color:var(--ink);border:1px solid var(--ink)}.btn.d{background:var(--red)}.btn.s{padding:6px 12px;font-size:13px}
+#login{max-width:340px;margin:20vh auto;padding:20px}#app{display:none;max-width:1000px;margin:auto;padding:16px}
+nav{display:flex;gap:6px;overflow-x:auto;margin:12px 0 20px;border-bottom:1px solid var(--line);padding-bottom:10px}nav button{background:none;border:0;padding:8px 14px;border-radius:8px;white-space:nowrap}nav .on{background:var(--ink);color:var(--bone)}
+.box{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}.r{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.r>.g{flex:1;min-width:140px}
+.r img{width:48px;height:60px;object-fit:cover;background:var(--sand);border-radius:4px}.g2{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.big{font-size:28px;font-weight:600}.red{color:var(--red)}.sm{font-size:13px;color:#6b6456}.cc{display:inline-block;border:1px solid var(--line);padding:3px 10px;border-radius:99px;margin:2px;background:none;font-size:13px}
+.vr{display:grid;grid-template-columns:1fr 1fr 80px 36px;gap:6px;margin-bottom:6px}#msg{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:8px;display:none}
+</style></head><body>
+<form id="login"><h2>Administration</h2><label>Mot de passe</label><input type="password" id="pw" autofocus autocomplete="current-password"><button class="btn" style="margin-top:14px;width:100%">Se connecter</button></form>
+<div id="app"><div class="r"><h2 class="g">Ma boutique</h2><a href="/" target="_blank" class="sm">Voir le site</a><button class="btn o s" id="out">Déconnexion</button></div>
+<nav id="nav"></nav><div id="v"></div></div><div id="msg"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';'),dzd=n=>(+n||0).toLocaleString('fr-DZ')+' DZD';
+const TABS={p:'Produits',c:'Catégories',o:'Commandes',s:'Statistiques',g:'Réglages'},ST={pending:'En attente',confirmed:'Confirmée',shipped:'Expédiée',delivered:'Livrée',cancelled:'Annulée'};
+let tab='p',cats=[],prods=[],F=null,tp=null;
+const msg=m=>{const e=$('#msg');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',2500)};
+async function api(u,m='GET',b,raw){const r=await fetch('/api/'+u,{method:m,headers:b&&!raw?{'Content-Type':'application/json'}:{},body:raw?b:b&&JSON.stringify(b)}),d=await r.json().catch(()=>({}));
+ if(r.status==401&&u!='admin/login'){$('#app').style.display='none';$('#login').style.display='block';throw 0}if(!r.ok){msg(d.error||'Erreur');throw 0}return d}
+$('#login').onsubmit=async e=>{e.preventDefault();try{await api('admin/login','POST',{password:$('#pw').value});start()}catch{}};
+$('#out').onclick=async()=>{await api('admin/logout','POST',{});location.reload()};
+async function start(){$('#login').style.display='none';$('#app').style.display='block';await load();go(tab)}
+async function load(){[{categories:cats},prods]=await Promise.all([api('shop'),api('products')])}
+function go(t){tab=t;F=null;$('#nav').innerHTML=Object.entries(TABS).map(([k,v])=>`<button class="${k==t?'on':''}" onclick="go('${k}')">${v}</button>`).join('');({p:vp,c:vc,o:vo,s:vs,g:vg})[t]()}
+const cn=s=>(cats.find(c=>c.slug==s)||{}).fr||s;
+// products
+function vp(){if(F)return form();$('#v').innerHTML=`<button class="btn" onclick="edit()">+ Nouveau produit</button><div style="margin-top:14px">`+(prods.map(p=>`<div class="box r"><img src="${esc(p.images[0]||'')}" alt=""><div class="g"><b>${esc(p.name_fr)}</b><div class="sm">${esc(cn(p.category))} · ${dzd(p.final)}${p.discount?` (−${p.discount}%)`:''}</div></div><div class="${p.stock?'':'red'}">${p.stock?p.stock+' en stock':'Épuisé'}</div><button class="btn o s" onclick="edit(${p.id})">Modifier</button><button class="btn d s" onclick="del(${p.id})">Supprimer</button></div>`).join('')||'<p class="sm">Aucun produit. Cliquez sur « Nouveau produit » pour commencer.</p>')+'</div>'}
+function edit(id){const p=prods.find(x=>x.id==id);F=p?JSON.parse(JSON.stringify(p)):{name_fr:'',name_ar:'',desc_fr:'',desc_ar:'',category:cats[0]?.slug||'',price:'',discount:0,images:[],specs:[],variants:[{size:'',color:'',stock:0}]};tp=null;vp()}
+async function del(id){if(confirm('Supprimer ce produit définitivement ?')){await api('admin/products/'+id,'DELETE');await load();vp();msg('Produit supprimé')}}
+const SZ=['XS','S','M','L','XL','XXL'],SP=['Matière','Entretien','Coupe','Pointure','Mouvement','Dimensions','Étanchéité'];
+function sync(){if(!F)return;['name_fr','name_ar','desc_fr','desc_ar','category','price','discount'].forEach(k=>{const e=$('#f_'+k);if(e)F[k]=e.value});
+ F.variants=[...document.querySelectorAll('.vr')].map(r=>({size:r.children[0].value,color:r.children[1].value,stock:r.children[2].value}));F.specs=[...document.querySelectorAll('.sr')].map(r=>({k:r.children[0].value,v:r.children[1].value}))}
+const fld=(k,l,t='text')=>`<label>${l}</label><input id="f_${k}" type="${t}" value="${esc(F[k])}">`;
+function form(){const fin=Math.round(F.price*(1-F.discount/100))||0;
+ $('#v').innerHTML=`<div class="box"><h3>${F.id?'Modifier':'Nouveau'} produit</h3><div class="g2"><div>${fld('name_fr','Nom (français)')}${fld('name_ar','Nom (arabe)')}</div><div><label>Catégorie</label><select id="f_category">${cats.map(c=>`<option value="${esc(c.slug)}" ${c.slug==F.category?'selected':''}>${esc(c.fr)}</option>`).join('')}</select><div class="r"><div class="g">${fld('price','Prix (DZD)','number')}</div><div class="g">${fld('discount','Réduction (%)','number')}</div></div><p class="sm" style="margin-top:6px">Prix affiché au client : <b>${dzd(fin)}</b></p></div></div>
+ <label>Description (français)</label><textarea id="f_desc_fr" rows="3">${esc(F.desc_fr)}</textarea><label>Description (arabe)</label><textarea id="f_desc_ar" rows="3">${esc(F.desc_ar)}</textarea>
+ <label>Photos</label><div class="r">${F.images.map((u,i)=>`<div><img src="${esc(u)}" alt=""><br><button class="btn o s" onclick="sync();F.images.splice(${i},1);form()">Retirer</button></div>`).join('')}</div><input type="file" id="f_files" accept="image/*" multiple style="margin-top:8px">
+ <label>Tailles, couleurs et stock</label><p class="sm">Une ligne par combinaison. Laissez vide ce qui ne s’applique pas (ex. montre : pas de taille).</p><div style="margin:8px 0">${SZ.map(s=>`<button class="cc" onclick="sync();F.variants.push({size:'${s}',color:'',stock:0});form()">+ ${s}</button>`).join('')}</div>
+ ${F.variants.map((v,i)=>`<div class="vr"><input placeholder="Taille" value="${esc(v.size)}"><input placeholder="Couleur" value="${esc(v.color)}"><input type="number" min="0" placeholder="Stock" value="${esc(v.stock)}"><button class="btn o s" onclick="sync();F.variants.splice(${i},1);form()">✕</button></div>`).join('')}<button class="btn o s" onclick="sync();F.variants.push({size:'',color:'',stock:0});form()">+ Ajouter une ligne</button>
+ <label>Caractéristiques</label><div>${SP.map(s=>`<button class="cc" onclick="sync();F.specs.push({k:'${s}',v:''});form()">+ ${s}</button>`).join('')}</div><div style="margin-top:8px">${F.specs.map((s,i)=>`<div class="vr sr" style="grid-template-columns:1fr 2fr 36px"><input placeholder="Nom" value="${esc(s.k)}"><input placeholder="Valeur" value="${esc(s.v)}"><button class="btn o s" onclick="sync();F.specs.splice(${i},1);form()">✕</button></div>`).join('')}<button class="btn o s" onclick="sync();F.specs.push({k:'',v:''});form()">+ Autre caractéristique</button></div>
+ <div class="r" style="margin-top:20px"><button class="btn" onclick="saveP()">Enregistrer</button><button class="btn o" onclick="F=null;vp()">Annuler</button></div></div>`;
+ ['price','discount'].forEach(k=>$('#f_'+k).oninput=()=>{sync();const b=document.querySelector('.sm b');if(b)b.textContent=dzd(Math.round(F.price*(1-F.discount/100)))})}
+async function saveP(){sync();const fd=new FormData();fd.append('data',JSON.stringify(F));fd.append('keep',JSON.stringify(F.images));[...$('#f_files').files].forEach(f=>fd.append('images',f));
+ try{await api('admin/products'+(F.id?'/'+F.id:''),F.id?'PUT':'POST',fd,1);await load();F=null;vp();msg('Produit enregistré')}catch{}}
+// categories
+function vc(){$('#v').innerHTML=`<div class="box r"><input id="nf" placeholder="Nom en français" style="flex:1"><input id="na" placeholder="Nom en arabe" style="flex:1"><button class="btn" onclick="addC()">Ajouter</button></div>`+cats.map(c=>`<div class="box r"><input value="${esc(c.fr)}" id="cf_${c.slug}" class="g"><input value="${esc(c.ar)}" id="ca_${c.slug}" class="g"><button class="btn o s" onclick="upC('${c.slug}')">Enregistrer</button><button class="btn d s" onclick="delC('${c.slug}')">Supprimer</button></div>`).join('')}
+async function addC(){try{await api('admin/categories','POST',{fr:$('#nf').value,ar:$('#na').value});await load();vc()}catch{}}
+async function upC(s){try{await api('admin/categories/'+s,'PUT',{fr:$('#cf_'+s).value,ar:$('#ca_'+s).value});await load();msg('Enregistré')}catch{}}
+async function delC(s){if(confirm('Supprimer cette catégorie ?'))try{await api('admin/categories/'+s,'DELETE');await load();vc()}catch{}}
+// orders
+async function vo(){const o=await api('admin/orders');$('#v').innerHTML=o.map(x=>`<div class="box"><div class="r"><b class="g">Commande n°${x.id} · ${dzd(x.total)}</b><select onchange="st(${x.id},this.value)" style="width:auto">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k==x.status?'selected':''}>${v}</option>`).join('')}</select></div><p class="sm">${new Date(x.created+'Z').toLocaleString('fr-DZ')}</p><p>${esc(x.name)} · <a href="tel:${esc(x.phone)}">${esc(x.phone)}</a> · ${esc(x.wilaya)}${x.address?' · '+esc(x.address):''}</p><ul style="margin:6px 0 0 18px">${x.items.map(i=>`<li>${esc(i.name)} ${esc([i.size,i.color].filter(Boolean).join(' / '))} ×${i.qty}</li>`).join('')}</ul></div>`).join('')||'<p class="sm">Aucune commande pour le moment.</p>'}
+async function st(id,s){try{await api('admin/orders/'+id,'PUT',{status:s});await load();msg('Statut mis à jour (stock ajusté si nécessaire)')}catch{}vo()}
+// stats
+async function vs(){const s=await api('admin/stats');$('#v').innerHTML=`<div class="g2"><div class="box"><div class="sm">Ventes (commandes confirmées)</div><div class="big">${dzd(s.revenue)}</div></div><div class="box"><div class="sm">Commandes en attente</div><div class="big">${s.pending}</div></div><div class="box"><div class="sm">Commandes au total</div><div class="big">${s.orders}</div></div><div class="box"><div class="sm">Produits</div><div class="big">${s.products}</div></div></div>
+ <div class="box"><b>Par mois</b>${s.months.map(m=>`<div class="r"><span class="g">${m.m}</span><span>${m.n} commandes</span><b>${dzd(m.t)}</b></div>`).join('')||'<p class="sm">Pas encore de ventes.</p>'}</div><div class="box"><b>Produits épuisés</b><p class="${s.out.length?'red':'sm'}">${s.out.map(esc).join(', ')||'Aucun'}</p></div>`}
+// settings
+async function vg(){const s=await api('admin/settings');$('#v').innerHTML=`<div class="box"><label>Nom de la boutique</label><input id="gs" value="${esc(s.shop)}"><label>Numéro WhatsApp (avec l’indicatif, ex. 213555123456)</label><input id="gw" value="${esc(s.whatsapp)}"><label>Nouveau mot de passe (laisser vide pour ne pas changer)</label><input id="gp" type="password" autocomplete="new-password"><button class="btn" style="margin-top:14px" onclick="saveG()">Enregistrer</button></div>`}
+async function saveG(){try{await api('admin/settings','PUT',{shop:$('#gs').value,whatsapp:$('#gw').value,password:$('#gp').value});msg('Réglages enregistrés')}catch{}}
+api('admin/me').then(start).catch(()=>{});
+</script></body></html>
